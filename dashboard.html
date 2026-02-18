@@ -1,0 +1,97 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Smart Door Security Dashboard</title>
+
+    <style>
+    body{
+        font-family:Arial;
+        background:#f4f4f4;
+        text-align:center;
+    }
+    h1{
+        background:#2c3e50;
+        color:white;
+        padding:15px;
+    }
+    #stream{
+        margin:20px;
+    }
+    .gallery{
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+    .card{
+        background:white;
+        margin:15px;
+        padding:10px;
+        border-radius:10px;
+        box-shadow:0 2px 5px rgba(0,0,0,0.2);
+    }
+    img{
+        width:260px;
+        border-radius:10px;
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <h1>Smart Door Security Monitoring Dashboard</h1>
+
+    <!-- LIVE STREAM -->
+    <div id="stream">
+    <h2>Live Camera</h2>
+    <img id="live" src="http://192.168.29.144/stream" width="600">
+    </div>
+
+    <h2>Intrusion Logs</h2>
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+
+    // Replace with published CSV link of Google Sheet
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSfcUG-C1W3qoFG8pHo8C9_gVmC7jxMpxasX2tftZMBRWoJOUsr1RM1B0Y_9kIgao3eMVVvZ-tktbDj/pub?output=csv";
+
+    function loadLogs(){
+
+    fetch(sheetURL)
+    .then(res => res.text())
+    .then(data => {
+
+        const rows = data.split("\n").slice(1).reverse();
+        const gallery = document.getElementById("gallery");
+        gallery.innerHTML = "";
+
+        rows.forEach(row => {
+
+            const cols = row.split(",");
+            if(cols.length < 3) return;
+
+            const time = cols[0];
+            const event = cols[1];
+            const image = cols[2];
+
+            const card = document.createElement("div");
+            card.className="card";
+
+            card.innerHTML = `
+                <h3>${event}</h3>
+                <p>${time}</p>
+                <img src="${image}">
+            `;
+
+            gallery.appendChild(card);
+        });
+
+    });
+    }
+
+    loadLogs();
+    setInterval(loadLogs,10000);
+
+    </script>
+
+    </body>
+    </html>
